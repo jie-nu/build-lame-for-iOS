@@ -1,21 +1,26 @@
-#!/bin/bash
-## Mini-Xcode: XCode 5
+ld
+rm -rf build/* #*/
 
 MIN_VERSION="6.0"
 
-# set default output folder is build
-OUTPUT_FOLDER=${PREFIX-build}
-
-# set default compiler
-CC=${CC-$(xcrun --find gcc)}
-LIPO=${LIPO-$(xcrun --find lipo)}
-
-XCODE_PATH=$(xcode-select -print-path)
-
-# make output folder
-mkdir -p $OUTPUT_FOLDER
-
 function build_lame()
+{
+    make distclean
+
+    ./configure \
+        CFLAGS="-isysroot /Applications/Xcode.app/Contents/Developer/Platforms/${SDK}.platform/Developer/SDKs/$SDK$SDK_VERSION.sdk" \
+        CC="/Applications/Xcode.app/Contents/Developer/usr/bin/gcc -arch $PLATFORM -miphoneos-version-min=7.0" \
+        --prefix="/Users/$USER/Desktop/$PROJECTNAME" \
+        --host="$HOST" \
+        --disable-shared \
+        --enable-static \
+        --disable-frontend \
+
+    make
+    cp "$PROJECTNAME/.libs/$PROJECTNAME.a" "build/$PROJECTNAME-$PLATFORM.a"
+}
+
+function build_lame2()
 {
     make distclean
 
@@ -24,7 +29,7 @@ function build_lame()
 
     ./configure \
         CFLAGS="-arch ${PLATFORM} -pipe -std=c99 -isysroot ${SDK_ROOT} -miphoneos-version-min=${MIN_VERSION}" \
-        --host="arm-apple-darwin9" \
+        --host="$HOST" \
         --enable-static \
         --disable-decoder \
         --disable-frontend \
@@ -32,31 +37,31 @@ function build_lame()
         --disable-dependency-tracking
 
     make
-
-    cp "libmp3lame/.libs/libmp3lame.a" "${OUTPUT_FOLDER}/libmp3lame-${PLATFORM}.a"
+    cp "$PROJECTNAME/.libs/$PROJECTNAME.a" "build/$PROJECTNAME-$PLATFORM.a"
 }
 
-# bulid simulator version
+
+PROJECTNAME=libmp3lame
+SDK_VERSION=9.1
+
 SDK="iPhoneSimulator"
+HOST="i686-apple-darwin12.5.0"
 PLATFORM="i686"
 build_lame
 
-# build device version
-SDK="iPhoneOS"
-
-PLATFORM="armv7"
+PLATFORM="x86_64"
 build_lame
+
+SDK="iPhoneOS"
+HOST="arm-apple-darwin9"
+PLATFORM="armv7"
+build_lame2
 
 PLATFORM="armv7s"
-build_lame
+build_lame2
 
 PLATFORM="arm64"
-build_lame
+build_lame2
 
-# remove old libmp3lame.a or lipo will failed
-OUTPUT_LIB=${OUTPUT_FOLDER}/libmp3lame.a
-if [ -f $OUTPUT_LIB ]; then
-    rm $OUTPUT_LIB
-fi
 
-${LIPO} -create ${OUTPUT_FOLDER}/* -output ${OUTPUT_LIB}
+lipo -create build/$PROJECTNAME-* -output build/$PROJECTNAME.a
