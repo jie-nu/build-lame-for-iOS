@@ -1,11 +1,11 @@
 build-lame-for-iOS
 ==================
 
-build lame for iOS versoin on XCode 5
+build lame for iOS versoin on XCode 7.1
 
 ### Release Library
 
-You can download last lame library at [release](https://github.com/Superbil/build-lame-for-iOS/releases/latest).
+~~You can download last lame library at [release](https://github.com/Superbil/build-lame-for-iOS/releases/latest).~~
 
 ### Usage
 
@@ -22,7 +22,7 @@ $ ./build_ios.sh
 
 ### Requirements
 
-* XCode 5 SDK
+* XCode 7.1 SDK
 
     Note, use xcode 4 SDK won't support some command
 
